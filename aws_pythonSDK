@@ -51,7 +51,8 @@ class VideoDetect:
                     sys.stdout.flush()
                     time.sleep(5)
                     continue
-
+                
+                print(type(sqsResponse))
                 for message in sqsResponse['Messages']:
                     notification = json.loads(message['Body'])
                     rekMessage = json.loads(notification['Message'])
@@ -75,12 +76,110 @@ class VideoDetect:
 
         return succeeded
 
+    def StartFaceDetection(self): # need to finish
+        response=self.rek.start_face_detection(Video={'S3Object': {'Bucket': self.bucket, 'Name': self.video}},
+            NotificationChannel={'RoleArn': self.roleArn, 'SNSTopicArn': self.snsTopicArn})
+
+    def GetFaceDetection(self): # need to finish
+        f = open(os.path.join(sys.path[0], "out.txt"),'w')
+        maxResults = 10
+        paginationToken = ''
+        finished = False
+        while finished == False:
+            response = self.rek.get_face_detection(JobId=self.startJobId,
+                                            MaxResults=maxResults,
+                                            NextToken=paginationToken,
+                                            SortBy='TIMESTAMP')
+            print("TYPE",type(response))
+            print(response)
+
+            # print('Codec: ' + response['VideoMetadata']['Codec'], file=f)
+            # print('Duration: ' + str(response['VideoMetadata']['DurationMillis']), file=f)
+            # print('Format: ' + response['VideoMetadata']['Format'], file=f)
+            # print('Frame rate: ' + str(response['VideoMetadata']['FrameRate']), file=f)
+            
+
+            for faceDetection in response['Labels']:
+                # face=faceDetection['Label']
+                # print("TYPE",type(response), file=f)
+                # print("Timestamp: " + str(faceDetection['Timestamp']), file=f)
+                # print("   Label: " + face['Name'], file=f)
+                # print("   Confidence: " +  str(face['Confidence']), file=f)
+                # print("   Instances:", file=f)
+                # for instance in face['Instances']:
+                #     print ("      Confidence: " + str(instance['Confidence']), file=f)
+                #     print ("      Bounding box", file=f)
+                #     print ("        Top: " + str(instance['BoundingBox']['Top']), file=f)
+                #     print ("        Left: " + str(instance['BoundingBox']['Left']), file=f)
+                #     print ("        Width: " +  str(instance['BoundingBox']['Width']), file=f)
+                #     print ("        Height: " +  str(instance['BoundingBox']['Height']), file=f)
+                #     print()
+                # print()
+                # print ("   Parents:", file=f)
+                # for parent in face['Parents']:
+                #     print ("      " + parent['Name'], file=f)
+                # print ()
+
+                if 'NextToken' in response:
+                    paginationToken = response['NextToken']
+                else:
+                    finished = True
+
+    def StartPersonTracking(self):
+        response=self.rek.start_person_tracking(Video={'S3Object': {'Bucket': self.bucket, 'Name': self.video}},
+            NotificationChannel={'RoleArn': self.roleArn, 'SNSTopicArn': self.snsTopicArn})
+
+    def GetPersonTracking(self):
+        f = open(os.path.join(sys.path[0], "out.txt"),'w')
+        maxResults = 10
+        paginationToken = ''
+        finished = False
+        while finished == False:
+            response = self.rek.get_person_tracking(JobId=self.startJobId,
+                                            MaxResults=maxResults,
+                                            NextToken=paginationToken,
+                                            SortBy='TIMESTAMP')
+            print("TYPE",type(response))
+            print(response)
+
+            # print('Codec: ' + response['VideoMetadata']['Codec'], file=f)
+            # print('Duration: ' + str(response['VideoMetadata']['DurationMillis']), file=f)
+            # print('Format: ' + response['VideoMetadata']['Format'], file=f)
+            # print('Frame rate: ' + str(response['VideoMetadata']['FrameRate']), file=f)
+            
+
+            for personTracked in response['Labels']:
+            #     person=personTracked['Label']
+            #     print("TYPE",type(response), file=f)
+            #     print("Timestamp: " + str(personTracked['Timestamp']), file=f)
+            #     print("   Label: " + person['Name'], file=f)
+            #     print("   Confidence: " +  str(person['Confidence']), file=f)
+            #     print("   Instances:", file=f)
+            #     for instance in face['Instances']:
+            #         print ("      Confidence: " + str(instance['Confidence']), file=f)
+            #         print ("      Bounding box", file=f)
+            #         print ("        Top: " + str(instance['BoundingBox']['Top']), file=f)
+            #         print ("        Left: " + str(instance['BoundingBox']['Left']), file=f)
+            #         print ("        Width: " +  str(instance['BoundingBox']['Width']), file=f)
+            #         print ("        Height: " +  str(instance['BoundingBox']['Height']), file=f)
+            #         print()
+            #     print()
+            #     print ("   Parents:", file=f)
+            #     for parent in face['Parents']:
+            #         print ("      " + parent['Name'], file=f)
+            #     print ()
+
+                if 'NextToken' in response:
+                    paginationToken = response['NextToken']
+                else:
+                    finished = True
+
     def StartLabelDetection(self):
         response=self.rek.start_label_detection(Video={'S3Object': {'Bucket': self.bucket, 'Name': self.video}},
             NotificationChannel={'RoleArn': self.roleArn, 'SNSTopicArn': self.snsTopicArn})
 
         self.startJobId=response['JobId']
-        print('Start Job Id: ' + self.startJobId)
+        #print('Start Job Id: ' + self.startJobId)
 
 
     def GetLabelDetectionResults(self):
@@ -94,33 +193,34 @@ class VideoDetect:
                                             NextToken=paginationToken,
                                             SortBy='TIMESTAMP')
             print("TYPE",type(response))
+            print(response)
 
-            print('Codec: ' + response['VideoMetadata']['Codec'], file=f)
-            print('Duration: ' + str(response['VideoMetadata']['DurationMillis']), file=f)
-            print('Format: ' + response['VideoMetadata']['Format'], file=f)
-            print('Frame rate: ' + str(response['VideoMetadata']['FrameRate']), file=f)
+            # print('Codec: ' + response['VideoMetadata']['Codec'], file=f)
+            # print('Duration: ' + str(response['VideoMetadata']['DurationMillis']), file=f)
+            # print('Format: ' + response['VideoMetadata']['Format'], file=f)
+            # print('Frame rate: ' + str(response['VideoMetadata']['FrameRate']), file=f)
             
 
             for labelDetection in response['Labels']:
-                label=labelDetection['Label']
-                print("TYPE",type(response), file=f)
-                print("Timestamp: " + str(labelDetection['Timestamp']), file=f)
-                print("   Label: " + label['Name'], file=f)
-                print("   Confidence: " +  str(label['Confidence']), file=f)
-                print("   Instances:", file=f)
-                for instance in label['Instances']:
-                    print ("      Confidence: " + str(instance['Confidence']), file=f)
-                    print ("      Bounding box", file=f)
-                    print ("        Top: " + str(instance['BoundingBox']['Top']), file=f)
-                    print ("        Left: " + str(instance['BoundingBox']['Left']), file=f)
-                    print ("        Width: " +  str(instance['BoundingBox']['Width']), file=f)
-                    print ("        Height: " +  str(instance['BoundingBox']['Height']), file=f)
-                    print()
-                print()
-                print ("   Parents:", file=f)
-                for parent in label['Parents']:
-                    print ("      " + parent['Name'], file=f)
-                print ()
+            #     label=labelDetection['Label']
+            #     print("TYPE",type(response), file=f)
+            #     print("Timestamp: " + str(labelDetection['Timestamp']), file=f)
+            #     print("   Label: " + label['Name'], file=f)
+            #     print("   Confidence: " +  str(label['Confidence']), file=f)
+            #     print("   Instances:", file=f)
+            #     for instance in label['Instances']:
+            #         print ("      Confidence: " + str(instance['Confidence']), file=f)
+            #         print ("      Bounding box", file=f)
+            #         print ("        Top: " + str(instance['BoundingBox']['Top']), file=f)
+            #         print ("        Left: " + str(instance['BoundingBox']['Left']), file=f)
+            #         print ("        Width: " +  str(instance['BoundingBox']['Width']), file=f)
+            #         print ("        Height: " +  str(instance['BoundingBox']['Height']), file=f)
+            #         print()
+            #     print()
+            #     print ("   Parents:", file=f)
+            #     for parent in label['Parents']:
+            #         print ("      " + parent['Name'], file=f)
+            #     print ()
 
                 if 'NextToken' in response:
                     paginationToken = response['NextToken']

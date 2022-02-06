@@ -5,4 +5,7 @@ with open('sample2.json') as json_file:
  
     # Print the type of data variable
     print("Type:", type(data))
-    print(data["FaceDetails"][0].get('Pose')) # gets face pose
+    #print(data["Labels"]) # gets face pose
+    print(data["Persons"][0]) # gets face pose
+    #print(data["Labels"]) # gets face pose
+
