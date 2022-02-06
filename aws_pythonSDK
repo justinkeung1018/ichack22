@@ -79,6 +79,7 @@ class VideoDetect:
     def StartFaceDetection(self): # need to finish
         response=self.rek.start_face_detection(Video={'S3Object': {'Bucket': self.bucket, 'Name': self.video}},
             NotificationChannel={'RoleArn': self.roleArn, 'SNSTopicArn': self.snsTopicArn})
+        response=self.detect_faces
 
     def GetFaceDetection(self): # need to finish
         f = open(os.path.join(sys.path[0], "out.txt"),'w')
@@ -86,10 +87,19 @@ class VideoDetect:
         paginationToken = ''
         finished = False
         while finished == False:
-            response = self.rek.get_face_detection(JobId=self.startJobId,
-                                            MaxResults=maxResults,
-                                            NextToken=paginationToken,
-                                            SortBy='TIMESTAMP')
+            response = client.detect_faces(
+    Image={
+        'Bytes': b'bytes',
+        'S3Object': {
+            'Bucket': 'string',
+            'Name': 'string',
+            'Version': 'string'
+        }
+    },
+    Attributes=[
+        'DEFAULT'|'ALL',
+    ]
+)
             print("TYPE",type(response))
             print(response)
 
