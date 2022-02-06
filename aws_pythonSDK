@@ -296,6 +296,14 @@ def main():
     analyzer.StartLabelDetection()
     if analyzer.GetSQSMessageSuccess()==True:
         analyzer.GetLabelDetectionResults()
+
+    analyzer.StartFaceDetection()
+    if analyzer.GetSQSMessageSuccess()==True:
+        analyzer.GetFaceDetectionResults()
+
+    analyzer.StartPersonTracking()
+    if analyzer.GetSQSMessageSuccess()==True:
+        analyzer.GetPersonTrackingResults()
     
     analyzer.DeleteTopicandQueue()
 
