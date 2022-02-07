@@ -1,0 +1,122 @@
+<html>
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://use.typekit.net/anz4pcu.css">
+    <script src="https://unpkg.com/vue"></script>
+    <script src="https://unpkg.com/axios@0.2.1/dist/axios.min.js"></script>
+    <script src="index.js"></script>
+</head>
+<style>
+  * {
+    font-family: "Proxima Nova", sans-serif;
+  }
+</style>
+<body>
+  <!--
+<div id="navbar">
+  <div class="container">
+    <div class="navbar flexbox">
+      <div>
+        <img src="piccadilly line.png" width="30" alt="logo">
+      </div>
+      <div>
+        <button class="link">
+          <a href=#explain_section style="text-decoration: none;">How it works</a>
+        </button>
+        <button class="link">
+          <a href=#story_section style="text-decoration: none;">Our story</a>
+        </button>
+      </div>
+  </div>
+</div>
+  -->
+<div id="hero_section" class="section">
+  <div class="container">
+    </div>
+    <div class="hero_heading">
+      Are you<br>
+      fashionable?
+    </div>
+    <div class="hero green_underline"></div>
+    <div class="hero_subheading">
+      <h3>Upload a 5-second video to see how many heads turned when you entered the room.</h3>
+    </div>
+    <div id="app">
+      <div v-if="!image">
+        <input type="file" id="submit_button" @change="onFileChange">
+        <label for="submit_button" class="button">
+          Upload your video
+        </label>
+      </div>
+      <div v-else>
+        <div class="edit_buttons">
+          <button v-if="!uploadURL" class="button" @click="removeImage">Remove image</button>
+          <button v-if="!uploadURL" class="button" @click="uploadImage">Upload image</button>
+        </div>
+      </div>
+    <h2 v-if="uploadURL">Success! Image uploaded to bucket.</h2>
+    </div>
+  </div>
+</div>
+<div id="explain_section"></div>
+<div id="story_section"></div>
+<script>
+  const MAX_IMAGE_SIZE = 100000000000
+  const API_ENDPOINT = 'https://3oa7t789jj.execute-api.us-east-2.amazonaws.com/uploads'
+  new Vue({
+    el: "#app",
+    data: {
+      image: '',
+      uploadURL: ''
+    },
+    methods: {
+      onFileChange (e) {
+        let files = e.target.files || e.dataTransfer.files
+        if (!files.length) return
+        this.createImage(files[0])
+      },
+      createImage (file) {
+        let reader = new FileReader()
+        reader.onload = (e) => {
+          console.log('length: ', e.target.result.includes('data:video/quicktime'))
+          if (!e.target.result.includes('data:video/quicktime')) {
+            return alert('Wrong file type - JPG only.')
+          }
+          if (e.target.result.length > MAX_IMAGE_SIZE) {
+            return alert('Image is loo large.')
+          }
+          this.image = e.target.result
+        }
+        reader.readAsDataURL(file)
+      },
+      removeImage: function (e) {
+        console.log('Remove clicked')
+        this.image = ''
+      },
+      uploadImage: async function (e) {
+          console.log('Upload clicked')
+          // Get the presigned URL
+          const response = await axios({
+            method: 'GET',
+            url: API_ENDPOINT
+          })
+          console.log('Response: ', response)
+          console.log('Uploading: ', this.image)
+          let binary = atob(this.image.split(',')[1])
+          let array = []
+          for (var i = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i))
+          }
+          let blobData = new Blob([new Uint8Array(array)], {type: 'video/quicktime'})
+          console.log('Uploading to: ', response.uploadURL)
+          const result = await fetch(response.uploadURL, {
+            method: 'PUT',
+            body: blobData
+          })
+          console.log('Result: ', result)
+          // Final URL for the user doesn't need the query string params
+          this.uploadURL = response.uploadURL.split('?')[0]
+        }
+      }
+    })
+</script>
